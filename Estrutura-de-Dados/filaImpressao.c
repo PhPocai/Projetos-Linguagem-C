@@ -1,12 +1,12 @@
 /*Considere um conjunto de 3 impressoras (vetor de 3 elementos).
 
-Implemente as filas de impress„o de cada uma das impressoras:
+Implemente as filas de impress√£o de cada uma das impressoras:
 
-- enviar documento para impress„o (dizer qual a impressora e a identificaÁ„o do documento): enfileira o documento na impressora
+- enviar documento para impress√£o (dizer qual a impressora e a identifica√ß√£o do documento): enfileira o documento na impressora
 
 - imprimir (dizer qual impressora): desenfileira documento
 
-- cancelar impress„o (dizer qual impressora e qual documento): retira documento da fila daquela impressora*/
+- cancelar impress√£o (dizer qual impressora e qual documento): retira documento da fila daquela impressora*/
 
 #include <stdio.h>
 #include <stdlib.h>
