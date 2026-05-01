@@ -1,1 +1,407 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+typedef struct lista{
+    char codvoo[15];
+    char data[11];
+    char hora[6];
+    struct lista *prox;
+}LISTA;
+
+typedef struct aviao {
+    char nome[20];
+    int lugares;
+    LISTA *voo;
+    struct aviao *prox;
+} AVIAO;
+
+typedef struct decolagem{
+    char codigovoo[15];
+    struct decolagem *prox;
+}DECOLAGEM;
+
+typedef struct aterisar{
+    char codigovoo[15];
+    struct aterisar *prox;
+}ATERRISSAR;
+
+AVIAO* buscaAviao(AVIAO *inicio, char nome[]){
+    AVIAO *aux = inicio;
+
+    while(aux != NULL){
+        if(strcmp(aux->nome, nome) == 0){
+            return aux;
+        }
+        aux = aux->prox;
+    }
+
+    return NULL;
+}
+
+int existeVoo(AVIAO *inicio, char codigo[]){
+    AVIAO *aux = inicio;
+    LISTA *v;
+
+    while(aux != NULL){
+        v = aux->voo;
+        while(v != NULL){
+            if(strcmp(v->codvoo, codigo) == 0){
+                return 1;
+            }
+            v = v->prox;
+        }
+        aux = aux->prox;
+    }
+    return 0;
+}
+
+void insereAviao (char nome[], int lugares, AVIAO **inicio){
+    AVIAO *novo;
+    novo = (AVIAO*) malloc(sizeof(AVIAO));
+    strcpy(novo->nome,nome);
+    novo->lugares = lugares;
+    novo->voo = NULL;
+    novo->prox = NULL;
+    if (*inicio == NULL){
+       *inicio = novo;
+       }else {
+        novo->prox = *inicio;
+        *inicio = novo;
+    }
+}
+
+void insereVoo(AVIAO *n, char codigo[],char data[],char hora[]){
+    LISTA *novo,*aux;
+    novo = (LISTA*) malloc(sizeof(LISTA));
+
+    strcpy(novo->codvoo,codigo);
+    strcpy(novo->data,data);
+    strcpy(novo->hora,hora);
+    novo->prox = NULL;
+
+    if(n->voo == NULL){
+        n->voo = novo;
+    }else{
+        aux = n->voo;
+        while(aux->prox != NULL){
+            aux = aux->prox;
+        }
+        aux->prox = novo;
+    }
+}
+
+void solicitaAterissagem(AVIAO *lista, char codigo[], ATERRISSAR **f){
+    ATERRISSAR *novo,*aux;
+
+     if(!existeVoo(lista, codigo)){
+        printf("Voo nao cadastrado!\n");
+        return;
+    }
+
+    novo = (ATERRISSAR*) malloc(sizeof(ATERRISSAR));
+
+    strcpy(novo->codigovoo,codigo);
+    novo->prox = NULL;
+
+    if(*f == NULL){
+        *f = novo;
+    } else {
+        aux = *f;
+        while(aux->prox != NULL){
+            aux = aux->prox;
+        }
+        aux->prox = novo;
+    }
+}
+
+
+void aterissar (ATERRISSAR **f){
+    ATERRISSAR *aux;
+
+    if(*f == NULL){
+        printf("Fila vazia\n");
+        return;
+    }
+
+    aux = *f;
+    printf("Aterrissou voo: %s\n", aux->codigovoo);
+
+    *f = aux->prox;
+    free(aux);
+
+}
+
+void solicitaDecolagem(AVIAO *lista, char codigo[], DECOLAGEM **f){
+    DECOLAGEM *novo;
+
+     if(!existeVoo(lista, codigo)){
+        printf("Voo nao cadastrado!\n");
+        return;
+    }
+
+    novo = (DECOLAGEM*) malloc(sizeof(DECOLAGEM));
+
+    strcpy(novo->codigovoo, codigo);
+    novo->prox = NULL;
+
+    if(*f == NULL){
+        *f = novo;
+    } else {
+        DECOLAGEM *aux = *f;
+        while(aux->prox != NULL){
+            aux = aux->prox;
+        }
+        aux->prox = novo;
+    }
+}
+
+void decola(DECOLAGEM **f){
+    DECOLAGEM *aux;
+
+    if(*f == NULL){
+        printf("Fila vazia\n");
+        return;
+    }
+
+    aux = *f;
+    printf("Decolou voo: %s\n", aux->codigovoo);
+
+    *f = aux->prox;
+    free(aux);
+}
+
+void exibeAviao(AVIAO *inicio){
+    AVIAO *aux = inicio;
+
+    while(aux != NULL){
+        printf("Aviao: %s | Lugares: %d\n", aux->nome, aux->lugares);
+        aux = aux->prox;
+    }
+}
+
+void exibeVoo(AVIAO *inicio){
+    AVIAO *aux = inicio;
+    LISTA *v;
+    while(aux != NULL){
+        printf("\nAviao: %s\n", aux->nome);
+
+        v = aux->voo;
+        while(v != NULL){
+            printf("Voo: %s | Data: %s | Hora: %s\n",v->codvoo, v->data, v->hora);v = v->prox;
+        }
+        aux = aux->prox;
+    }
+}
+
+void exibeFilaAt(ATERRISSAR *f){
+    ATERRISSAR *aux = f;
+
+    while(aux != NULL){
+        printf("Voo: %s\n", aux->codigovoo);
+        aux = aux->prox;
+    }
+}
+
+void exibeFilaDc(DECOLAGEM *f){
+    DECOLAGEM *aux = f;
+
+    while(aux != NULL){
+        printf("Voo: %s\n", aux->codigovoo);
+        aux = aux->prox;
+    }
+}
+
+void removeAviao(AVIAO **inicio, char nome[]){
+    AVIAO *aux = *inicio;
+    AVIAO *ant = NULL;
+
+    while(aux != NULL && strcmp(aux->nome, nome) != 0){
+        ant = aux;
+        aux = aux->prox;
+    }
+
+    if(aux == NULL){
+        printf("Aviao nao encontrado\n");
+        return;
+    }
+
+    if(ant == NULL){
+        *inicio = aux->prox;
+    } else {
+        ant->prox = aux->prox;
+    }
+
+    free(aux);
+    printf("Aviao removido\n");
+}
+
+void removeVoo(AVIAO *inicio, char codigo[]){
+    AVIAO *aux = inicio;
+    LISTA *v,*ant;
+    while(aux != NULL){
+        v = aux->voo;
+        ant = NULL;
+        while(v != NULL && strcmp(v->codvoo, codigo) != 0){
+            ant = v;
+            v = v->prox;
+        }
+
+        if(v != NULL){
+            if(ant == NULL){
+                aux->voo = v->prox;
+            } else {
+                ant->prox = v->prox;
+            }
+
+            free(v);
+            printf("Voo removido\n");
+            return;
+        }
+
+        aux = aux->prox;
+    }
+
+    printf("Voo nao encontrado\n");
+}
+
+
+int main(int argc, char *argv[]) {
+    AVIAO *listaAvioes = NULL;
+    DECOLAGEM *filaDec = NULL;
+    ATERRISSAR *filaAt = NULL;
+
+    insereAviao("AirBus320", 100, &listaAvioes);
+    insereAviao("Boeing747", 120, &listaAvioes);
+
+    AVIAO *a1 = buscaAviao(listaAvioes, "AirBus320");
+    AVIAO *a2 = buscaAviao(listaAvioes, "Boeing747");
+
+    insereVoo(a1, "G320", "12/04", "10:00");
+    insereVoo(a1, "G321", "12/04", "12:00");
+    insereVoo(a2, "L100", "12/04", "11:00");
+
+    int opcao = -1;
+
+    while(opcao != 0){
+        printf("\n1 - Insere Aviao:\n");
+        printf("2 - Insere Voo:\n");
+        printf("3 - Solicita Aterrissagem: \n");
+        printf("4 - Aterissar:\n");
+        printf("5 - Solicita Decolagem:\n");
+        printf("6 - Decola: \n");
+        printf("7 - Exbir Avioes: \n");
+        printf("8 - Exibir Voos:\n");
+        printf("9 - Exibir Fila de Aterrissagem: \n");
+        printf("10 - Exibir Fila de Decolagem: \n");
+        printf("11 - Remove Aviao\n");
+        printf("12 - Remove Voo\n");
+         printf("0 - Fecha e programa\n");
+        printf("Opcao: ");
+        scanf("%d",&opcao);
+        
+        switch(opcao){
+            case 1:{
+            char nome[20];
+            int lugares;
+
+            printf("Nome do aviao: ");
+            scanf("%s", nome);
+
+            printf("Lugares: ");
+            scanf("%d", &lugares);
+
+            insereAviao(nome, lugares, &listaAvioes);
+            break;
+            }
+
+            case 2:{
+            char nomeAviao[20];
+            char codigo[15], data[10], hora[6];
+
+            printf("Nome do aviao: ");
+            scanf("%s", nomeAviao);
+
+            AVIAO *a = buscaAviao(listaAvioes, nomeAviao);
+
+            if(a == NULL){
+                printf("Aviao nao encontrado!\n");
+                break;
+            }
+
+            printf("Codigo do voo: ");
+            scanf("%s", codigo);
+
+            printf("Data: ");
+            scanf("%s", data);
+
+            printf("Hora: ");
+            scanf("%s", hora);
+
+            insereVoo(a, codigo, data, hora);
+            break;
+            }
+
+            case 3:{
+            char codigo[15];
+
+            printf("Codigo do voo: ");
+            scanf("%s", codigo);
+
+            solicitaAterissagem(listaAvioes, codigo, &filaAt);
+            break;
+            }
+
+            case 4:{
+            aterissar(&filaAt);
+            break;
+            }
+
+            case 5:{
+            char codigo[15];
+
+            printf("Codigo do voo: ");
+            scanf("%s", codigo);
+
+            solicitaDecolagem(listaAvioes, codigo, &filaDec);
+            break;
+            }
+
+            case 6:{
+            decola(&filaDec);
+            break;
+            }
+            case 7:{
+            exibeAviao(listaAvioes);
+            break;
+            }
+            case 8:{
+            exibeVoo(listaAvioes);
+            break;
+            }
+            case 9:{
+            exibeFilaAt(filaAt);
+            break;
+            }
+            case 10:{
+            exibeFilaDc(filaDec);
+            break;
+            }
+            case 11:{
+            char nome[20];
+            printf("Nome do aviao: ");
+            scanf("%s", nome);
+            removeAviao(&listaAvioes, nome);
+            break;
+            }
+            case 12:{
+            char codigo[15];
+            printf("Codigo do voo: ");
+            scanf("%s", codigo);
+            removeVoo(listaAvioes, codigo);
+            break;
+            }
+        }
+    }
+    return 0;
+}
